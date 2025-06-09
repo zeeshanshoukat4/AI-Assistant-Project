@@ -1,7 +1,3 @@
-import openai
-import aiohttp
-import asyncio
-
 
 class AsyncOpenAI:
     def __init__(self, api_key, base_url=None):
