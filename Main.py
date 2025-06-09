@@ -2,7 +2,7 @@ import streamlit as st
 from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, RunConfig, Runner
 from dotenv import load_dotenv
 import os
-
+import asyncio
 
 # STEP 1: Directly set your Gemini API key (for testing purpose only)
 # Replace the string below with your actual Gemini API key
