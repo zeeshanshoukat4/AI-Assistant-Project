@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -30,34 +30,35 @@ class RunConfig:
 class Runner:
     @staticmethod
     async def run(agent, input, run_config):
-        messages = [
-            {"role": "system", "content": agent.instructions},
-            {"role": "user", "content": input}
-        ]
-        
-        response = await run_config.model_provider.ChatCompletion.acreate(
+        client = run_config.model_provider
+        response = client.chat.completions.create(
             model=run_config.model.model,
-            messages=messages
+            messages=[
+                {"role": "system", "content": agent.instructions},
+                {"role": "user", "content": input}
+            ]
         )
         
         class Result:
             def __init__(self, final_output):
                 self.final_output = final_output
                 
-        return Result(final_output=response['choices'][0]['message']['content'])
+        return Result(final_output=response.choices[0].message.content)
 
 # OpenAI client setup
-openai.api_key = gemini_api_key
-openai.api_base = "https://generativelanguage.googleapis.com/v1beta/openai/"
+client = OpenAI(
+    api_key=gemini_api_key,
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+)
 
 model = OpenAIChatCompletionsModel(
     model="gemini-2.0-flash",
-    openai_client=openai
+    openai_client=client
 )
 
 config = RunConfig(
     model=model,
-    model_provider=openai,
+    model_provider=client,
     tracing_disabled=True
 )
 
