@@ -30,9 +30,9 @@ class MaterialsExpert:
 "5. Recent Innovations : Mention notable advancements such as alloy developments, coatings, additive manufacturing, or nanomaterials."  
 "6. Historical Relevance : Briefly explain the material's historical significance or evolution in industrial use."  
 
-"Ensure the response does not exceed 1000 words ( 1 to 4 heading 200 words and 5 to 6 heading 100 words).cover all and completed respone in 900 words ok with all headings and data"  
+"Ensure the response does not exceed 800 words ( 1 to 2 heading 200 words, 3rd heading  100 words , 4th heading 200 words and 5 to 6 heading 100 each words).cover all and completed respone in 900 words ok with all headings and data"  
 "Use professional, academically appropriate language that is clear and accessible to both engineers and students."  
-"Avoid redundancy and overly complex terminology without explanation."
+"Avoid redundancy and overly complex terminology without explanation. content not stop without completing response ok"
 
     
         )
@@ -117,4 +117,4 @@ if st.button("Analyze Material", key="analyze_btn"):
                 st.success(f"✅ Analysis complete in {(end_time - start_time):.1f} seconds")
                 # ✅ Use st.write() to allow full rendering of tables and long text
                 st.write(response)
-                st.caption("💡 Tip: For more detailed insights, include material grade or intended usage (e.g., 316L Stainless Steel for implants).")
+                
