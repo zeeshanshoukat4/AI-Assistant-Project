@@ -3,6 +3,8 @@ from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, RunConfig, Ru
 from dotenv import load_dotenv
 import os
 import asyncio
+import time
+import random
 
 # STEP 1: Directly set your Gemini API key (for testing purpose only)
 # Replace the string below with your actual Gemini API key
@@ -60,6 +62,12 @@ st.markdown("""
         border-radius: 10px;
         font-size: 1.1em;
         color: #1e3a8a;
+        white-space: pre-wrap;
+    }
+    .retry-info {
+        color: #dc2626;
+        font-size: 0.9em;
+        margin-top: 5px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -76,19 +84,39 @@ if st.button("Get Info"):
         st.warning("⚠️ Please enter a valid material name.")
     else:
         with st.spinner("Fetching expert-level material info..."):
-
-            async def run_agent():
-                return await Runner.run(
-                    Materials_Engineering,
-                    input=material_name_info,
-                    run_config=config
-                )
+            async def run_agent_with_retry():
+                max_retries = 5
+                retry_delay = 1  # Initial delay in seconds
+                
+                for attempt in range(max_retries):
+                    try:
+                        return await Runner.run(
+                            Materials_Engineering,
+                            input=material_name_info,
+                            run_config=config
+                        )
+                    except Exception as e:
+                        if "503" in str(e) or "overloaded" in str(e):
+                            # Show retry status in UI
+                            st.warning(f"⚠️ Model overloaded. Retrying in {retry_delay:.1f}s... (attempt {attempt+1}/{max_retries})")
+                            
+                            # Exponential backoff with jitter
+                            sleep_time = retry_delay + random.uniform(0, 1)
+                            await asyncio.sleep(sleep_time)
+                            retry_delay *= 2  # Double the delay for next retry
+                        else:
+                            raise e
+                
+                # If all retries fail
+                raise Exception("Model is still overloaded after multiple retries. Please try again later.")
 
             try:
-                result = asyncio.run(run_agent())
+                result = asyncio.run(run_agent_with_retry())
                 st.success("✅ Info Retrieved")
                 st.markdown(f"### 📘 {material_name_info.capitalize()} Details:")
                 st.markdown(f'<div class="response-box">{result.final_output}</div>', unsafe_allow_html=True)
 
             except Exception as e:
                 st.error(f"❌ Error: {str(e)}")
+                if "overloaded" in str(e):
+                    st.info("💡 Tip: This error usually resolves quickly. Try again in 1-2 minutes.")
