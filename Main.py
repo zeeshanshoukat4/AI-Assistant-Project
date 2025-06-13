@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import AsyncOpenAI
+import openai
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -10,7 +10,7 @@ import random
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-# Define required classes that were previously in agents.py
+# Define all required classes
 class Agent:
     def __init__(self, name, instructions):
         self.name = name
@@ -35,7 +35,7 @@ class Runner:
             {"role": "user", "content": input}
         ]
         
-        response = await run_config.model_provider.chat.completions.create(
+        response = await run_config.model_provider.ChatCompletion.acreate(
             model=run_config.model.model,
             messages=messages
         )
@@ -44,22 +44,20 @@ class Runner:
             def __init__(self, final_output):
                 self.final_output = final_output
                 
-        return Result(final_output=response.choices[0].message.content)
+        return Result(final_output=response['choices'][0]['message']['content'])
 
-# Gemini client setup
-external_client = AsyncOpenAI(
-    api_key=gemini_api_key,
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-)
+# OpenAI client setup
+openai.api_key = gemini_api_key
+openai.api_base = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 model = OpenAIChatCompletionsModel(
     model="gemini-2.0-flash",
-    openai_client=external_client
+    openai_client=openai
 )
 
 config = RunConfig(
     model=model,
-    model_provider=external_client,
+    model_provider=openai,
     tracing_disabled=True
 )
 
@@ -133,17 +131,13 @@ if st.button("Get Info"):
                         )
                     except Exception as e:
                         if "503" in str(e) or "overloaded" in str(e):
-                            # Show retry status in UI
                             st.warning(f"⚠️ Model overloaded. Retrying in {retry_delay:.1f}s... (attempt {attempt+1}/{max_retries})")
-                            
-                            # Exponential backoff with jitter
                             sleep_time = retry_delay + random.uniform(0, 1)
                             await asyncio.sleep(sleep_time)
-                            retry_delay *= 2  # Double the delay for next retry
+                            retry_delay *= 2
                         else:
                             raise e
                 
-                # If all retries fail
                 raise Exception("Model is still overloaded after multiple retries. Please try again later.")
 
             try:
