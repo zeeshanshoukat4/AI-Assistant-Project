@@ -30,7 +30,7 @@ class MaterialsExpert:
 "5. Recent Innovations : Mention notable advancements such as alloy developments, coatings, additive manufacturing, or nanomaterials."  
 "6. Historical Relevance : Briefly explain the material's historical significance or evolution in industrial use."  
 
-"Ensure the response does not exceed 800 words (every heading 133 words).cover all and completed respone in 900 words ok with all headings and data"  
+"Ensure the response does not exceed 1000 words ( 1 to 4 heading 200 words and 5 to 6 heading 100 words).cover all and completed respone in 900 words ok with all headings and data"  
 "Use professional, academically appropriate language that is clear and accessible to both engineers and students."  
 "Avoid redundancy and overly complex terminology without explanation."
 
